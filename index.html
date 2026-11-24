@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;background:radial-gradient(circle,#092c4b,#020812 70%);
+ color:#55dfff;font-family:Arial,sans-serif;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ overflow:hidden;text-align:center
+}
+h1{letter-spacing:12px;font-size:35px;text-shadow:0 0 20px #00bfff}
+p{color:#8acde5;letter-spacing:3px}
+.core{
+ width:220px;height:220px;border:3px solid #35dfff;border-radius:50%;
+ display:flex;align-items:center;justify-content:center;
+ box-shadow:0 0 25px #00bfff,inset 0 0 25px #00bfff;
+ animation:pulse 3s infinite
+}
+.inner{
+ width:150px;height:150px;border:2px solid #35dfff;border-radius:50%;
+ box-shadow:0 0 25px #00bfff;display:flex;align-items:center;justify-content:center
+}
+button{
+ margin-top:45px;padding:17px 28px;background:transparent;
+ color:#55dfff;border:1px solid #55dfff;border-radius:30px;
+ letter-spacing:2px;font-size:14px;box-shadow:0 0 15px #00bfff
+}
+#answer{margin:25px;padding:10px;color:white;max-width:300px}
+@keyframes pulse{50%{transform:scale(1.06);box-shadow:0 0 45px #00bfff}}
+</style>
+</head>
+<body>
+<h1>J.A.R.V.I.S</h1>
+<p>JUST A RATHER VERY INTELLIGENT SYSTEM</p>
+<div class="core"><div class="inner">AI</div></div>
+<button onclick="speakToJarvis()">SPEAK TO JARVIS</button>
+<div id="answer">Sistem hazır. Komutunu bekliyorum.</div>
+
+<script>
+function say(text){
+ document.getElementById("answer").textContent=text;
+ let voice=new SpeechSynthesisUtterance(text);
+ voice.lang="en-GB";
+ voice.rate=0.85;
+ speechSynthesis.speak(voice);
+}
+function speakToJarvis(){
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Recognition){say("Voice recognition is not supported in this browser.");return;}
+ const recognition=new Recognition();
+ recognition.lang="tr-TR";
+ recognition.onresult=function(event){
+  let command=event.results[0][0].transcript.toLowerCase();
+  if(command.includes("merhaba"))say("Merhaba. Size nasıl yardımcı olabilirim?");
+  else if(command.includes("nasılsın"))say("Sistemlerim kusursuz çalışıyor.");
+  else if(command.includes("saat"))say("Saat şu anda "+new Date().toLocaleTimeString("tr-TR"));
+  else say("Komutunuzu aldım. Yapay zeka bağlantısı henüz kurulmadı.");
+ };
+ recognition.onerror=function(){document.getElementById("answer").textContent="Mikrofon erişimini kontrol et.";};
+ recognition.start();
+}
+</script>
+</body>
+</html>
