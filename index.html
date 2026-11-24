@@ -67,3 +67,81 @@ function speakToJarvis(){
 </script>
 </body>
 </html>
+<script>
+const workerURL = "https://jarvis-ai-api.dz9fbwgj2k.workers.dev";
+
+function say(text) {
+  document.getElementById("answer").textContent = text;
+
+  const voice = new SpeechSynthesisUtterance(text);
+  voice.lang = "tr-TR";
+  voice.rate = 0.95;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(voice);
+}
+
+async function askJarvis(command) {
+  say("Seni dinliyorum. Bir saniye...");
+
+  try {
+    const response = await fetch(workerURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: command,
+        prompt: command
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Sunucu hatası");
+    }
+
+    const answer =
+      data.reply ||
+      data.response ||
+      data.text ||
+      data.message;
+
+    if (!answer || answer === "JARVIS API is online.") {
+      throw new Error("Sunucudan geçerli cevap alınamadı.");
+    }
+
+    say(answer);
+
+  } catch (error) {
+    say("Bağlantıda sorun oluştu. Tekrar deneyelim.");
+    console.error(error);
+  }
+}
+
+function speakToJarvis() {
+  const Recognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!Recognition) {
+    say("Tarayıcın sesli komut özelliğini desteklemiyor.");
+    return;
+  }
+
+  const recognition = new Recognition();
+  recognition.lang = "tr-TR";
+  recognition.interimResults = false;
+
+  recognition.onresult = function(event) {
+    const command = event.results[0][0].transcript;
+    askJarvis(command);
+  };
+
+  recognition.onerror = function() {
+    say("Mikrofon erişimini kontrol et.");
+  };
+
+  recognition.start();
+}
+</script>
